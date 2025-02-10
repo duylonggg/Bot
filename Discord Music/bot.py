@@ -25,9 +25,17 @@ voice_clients = {}
 queues = {}
 
 yt_dl_options = {
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-    "noplaylist": False
+    "format": "bestaudio/best",
+    "noplaylist": False,  
+    "default_search": "ytsearch",  
+    "source_address": "0.0.0.0",
+    "postprocessors": [{
+        "key": "FFmpegExtractAudio",
+        "preferredcodec": "mp3",
+        "preferredquality": "192",
+    }]
 }
+
 ytdl = yt_dlp.YoutubeDL(yt_dl_options)
 
 ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=0.25"'}
@@ -97,7 +105,7 @@ async def delete_song(ctx, name: str):
 
 @bot.command(name="play")
 async def play(ctx, url: str, from_queue=False):
-    """Phát nhạc từ YouTube."""
+    """Phát nhạc từ YouTube, Spotify, SoundCloud."""
     try:
         voice_client = ctx.guild.voice_client
         if not voice_client or not voice_client.is_connected():
@@ -113,20 +121,21 @@ async def play(ctx, url: str, from_queue=False):
 
         loop = asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
-        
-        if "entries" in data: 
+
+        if "entries" in data:
             for entry in data["entries"]:
                 queues.setdefault(ctx.guild.id, []).append(entry["url"])
-
             await ctx.send(f"📜 Đã thêm {len(data['entries'])} bài hát từ danh sách phát vào hàng đợi!")
             if not voice_client.is_playing():
                 await play_next(ctx)
         else:
             song = data['url']
             player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
-
             voice_clients[ctx.guild.id].play(player, after=lambda _: bot.loop.create_task(play_next(ctx)))
             await ctx.send(f"🎵 Đang phát: {data['title']}")
+            
+    except discord.HTTPException:
+        await ctx.send("❌ Mạng bị gián đoạn, thử lại sau!")
 
     except Exception as e:
         print(e)
