@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
 
-os.environ["PATH"] += os.pathsep + r"D:\HaDuyLong\ffmpeg-7.1-full_build\bin"
+os.environ["PATH"] += os.pathsep + r"D:\Bot\Discord\Music\ffmpeg-7.1-full_build\bin"
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,7 +26,7 @@ queues = {}
 
 yt_dl_options = {
     "format": "bestaudio[ext=m4a]/bestaudio/best",
-    "noplaylist": True
+    "noplaylist": False
 }
 ytdl = yt_dlp.YoutubeDL(yt_dl_options)
 
@@ -113,12 +113,20 @@ async def play(ctx, url: str, from_queue=False):
 
         loop = asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        
+        if "entries" in data: 
+            for entry in data["entries"]:
+                queues.setdefault(ctx.guild.id, []).append(entry["url"])
 
-        song = data['url']
-        player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
+            await ctx.send(f"📜 Đã thêm {len(data['entries'])} bài hát từ danh sách phát vào hàng đợi!")
+            if not voice_client.is_playing():
+                await play_next(ctx)
+        else:
+            song = data['url']
+            player = discord.FFmpegOpusAudio(song, **ffmpeg_options)
 
-        voice_clients[ctx.guild.id].play(player, after=lambda _: bot.loop.create_task(play_next(ctx)))
-        await ctx.send(f"🎵 Đang phát: {data['title']}")
+            voice_clients[ctx.guild.id].play(player, after=lambda _: bot.loop.create_task(play_next(ctx)))
+            await ctx.send(f"🎵 Đang phát: {data['title']}")
 
     except Exception as e:
         print(e)
