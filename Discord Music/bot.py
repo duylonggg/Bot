@@ -56,7 +56,7 @@ songs = load_songs()
 
 ############################################################################################################
 #                                                                                                          #
-#                                                PHÁT NHẠC                                                 #
+#                                        CHỈNH SỬA DANH SÁCH NHẠC                                          #
 #                                                                                                          # 
 ############################################################################################################
 
@@ -93,7 +93,7 @@ async def add_song(ctx, name: str, url: str):
     await ctx.send(f"✅ Đã thêm bài hát **{name}** vào danh sách!")
     
 @bot.command(name="delete_song")
-async def delete_song(ctx, name: str):
+async def delete_song(ctx, *, name: str):
     """Xóa bài hát khỏi danh sách"""
     if name not in songs:
         await ctx.send(f"❌ Không tìm thấy bài hát **{name}** trong danh sách!")
@@ -102,6 +102,12 @@ async def delete_song(ctx, name: str):
     del songs[name]
     save_songs()
     await ctx.send(f"🗑 Đã xóa bài hát **{name}** khỏi danh sách!")
+    
+############################################################################################################
+#                                                                                                          #
+#                                                PHÁT NHẠC                                                 #
+#                                                                                                          # 
+############################################################################################################
 
 @bot.command(name="play")
 async def play(ctx, url: str, from_queue=False):
@@ -140,6 +146,26 @@ async def play(ctx, url: str, from_queue=False):
     except Exception as e:
         print(e)
         await ctx.send("❌ Không thể phát nhạc!")
+        
+@bot.command(name="play_all")
+async def play_all(ctx):
+    """Phát toàn bộ danh sách nhạc đã lưu."""
+    if not songs:
+        await ctx.send("📂 Không có bài hát nào trong danh sách!")
+        return
+
+    guild_id = ctx.guild.id
+    if guild_id not in queues:
+        queues[guild_id] = []
+
+    song_urls = list(songs.values())
+    
+    if ctx.guild.voice_client and ctx.guild.voice_client.is_playing():
+        queues[guild_id].extend(song_urls)
+        await ctx.send(f"🎶 Đã thêm {len(song_urls)} bài hát vào hàng đợi!")
+    else:
+        queues[guild_id].extend(song_urls[1:])  
+        await play(ctx, song_urls[0])  
         
 @bot.command(name="play_name")
 async def play_name(ctx, *song_name):
@@ -187,7 +213,13 @@ async def skip(ctx):
         await play_next(ctx) 
         await ctx.send("⏭ Đã bỏ qua bài hát!")
     else:
-        await ctx.send("❌ Không có bài hát nào đang phát.")
+        await ctx.send("❌ Không có bài hát nào đang phát.") 
+        
+############################################################################################################
+#                                                                                                          #
+#                                                 HỖ TRỢ                                                   #
+#                                                                                                          #
+############################################################################################################
 
 @bot.command(name="help_me")
 async def help_me(ctx):
@@ -196,8 +228,9 @@ async def help_me(ctx):
         "# 🎵 Danh sách lệnh:\n"
         "?list_songs - In ra danh sách các bài nhạc đã lưu\n"
         "?add_song \"<name>\" \"<url>\" - Lưu bài hát mới vào danh sách\n"
-        "?delete_song \"<name>\" - Xóa một bài hát trong danh sách\n"
+        "?delete_song <name> - Xóa một bài hát trong danh sách\n"
         "?play <url> - Phát nhạc từ YouTube\n"
+        "?play_all - Phát tất cả nhạc trong danh sách"
         "?play_name <tên bài> - Phát nhạc theo tên từ danh sách có sẵn\n"
         "?pause - Tạm dừng nhạc\n"
         "?resume - Tiếp tục phát nhạc\n"
