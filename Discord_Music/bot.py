@@ -3,8 +3,10 @@ import os
 import yt_dlp
 import asyncio
 import json
+import sys
 from discord.ext import commands
 from dotenv import load_dotenv
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 ############################################################################################################
 #                                                                                                          #
@@ -56,6 +58,26 @@ songs = load_songs()
 
 ############################################################################################################
 #                                                                                                          #
+#                                             KHỞI ĐỘNG LẠI                                                #
+#                                                                                                          # 
+############################################################################################################
+
+@bot.command(name="restart")
+async def restart(ctx):
+    """Chờ bài hát hiện tại phát xong rồi khởi động lại bot."""
+    voice_client = ctx.guild.voice_client
+
+    if voice_client and voice_client.is_playing():
+        await ctx.send("🔄 Bot đang phát nhạc. Sẽ khởi động lại sau khi bài hát kết thúc...")
+
+        while voice_client and voice_client.is_playing():
+            await asyncio.sleep(1)
+
+    await ctx.send("🔄 Đang khởi động lại bot...")
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+############################################################################################################
+#                                                                                                          #
 #                                        CHỈNH SỬA DANH SÁCH NHẠC                                          #
 #                                                                                                          # 
 ############################################################################################################
@@ -63,6 +85,10 @@ songs = load_songs()
 @bot.event
 async def on_ready():
     print(f'{bot.user} is now jamming!')
+    
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(lambda: os.execv(sys.executable, [sys.executable] + sys.argv), 'cron', hour=0, minute=0)
+    scheduler.start()
 
 async def play_next(ctx):
     """Phát bài hát tiếp theo trong queue nếu có."""
@@ -236,6 +262,7 @@ async def help_me(ctx):
         "?resume - Tiếp tục phát nhạc\n"
         "?stop - Dừng nhạc và thoát khỏi kênh voice\n"
         "?skip - Bỏ qua bài hát hiện tại nhưng phát lại sau\n"
+        "?restart - Khởi động lại bot\n"
         "?help_me - Hiển thị danh sách lệnh"
     )
     await ctx.send(commands_list)
