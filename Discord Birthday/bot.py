@@ -6,7 +6,6 @@ import json
 from datetime import datetime, timedelta, time
 import pytz
 import asyncio
-import yt_dlp
 
 
 ############################################################################################################
@@ -163,7 +162,7 @@ async def birthdays(ctx):
     
     # Thêm hai thành viên ưu tiên trước
     for name, details in priority_birthdays.items():
-        message += f"- {name}: {details['date_of_birth']} (🌟 Ưu tiên)\n"
+        message += f"- {name}: {details['date_of_birth']}\n"
 
     # Thêm các thành viên còn lại đã được sắp xếp
     for name, details in sorted_other_birthdays:
