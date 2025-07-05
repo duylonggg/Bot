@@ -1,8 +1,8 @@
 # Ignore environment files
-Discord Birthday/*.env
-Discord Music/*.env
+Discord_Birthday/*.env
+Discord_Music/*.env
 
 # Ignore virtual environment
-Discord Birthday/venv/
-Discord Music/venv/
+Discord_Birthday/venv/
+Discord_Music/venv/
 

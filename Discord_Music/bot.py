@@ -19,8 +19,10 @@ TOKEN = os.getenv('BOT_TOKEN')
 
 os.environ["PATH"] += os.pathsep + r"D:\Bot\Discord\Music\ffmpeg-7.1-full_build\bin"
 
+# Kích hoạt intents cần thiết bao gồm member để auto-role và đổi nickname
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True  # Bật intents thành viên
 bot = commands.Bot(command_prefix="?", intents=intents)
 
 voice_clients = {}
@@ -240,6 +242,44 @@ async def skip(ctx):
         await ctx.send("⏭ Đã bỏ qua bài hát!")
     else:
         await ctx.send("❌ Không có bài hát nào đang phát.") 
+
+############################################################################################################
+#                                                                                                          #
+#                                             XỬ LÝ THÀNH VIÊN MỚI                                            #
+#                                                                                                          #
+############################################################################################################
+
+# Tên role và prefix cho nickname
+AUTO_ROLE_NAME = "Dân thường"
+NICK_PREFIX = "[Dân thường] "
+
+@bot.event
+async def on_member_join(member: discord.Member):
+    """
+    Sự kiện khi thành viên mới join: gán role và đổi nickname.
+    """
+    guild = member.guild
+    role = discord.utils.get(guild.roles, name=AUTO_ROLE_NAME)
+
+    # Gán role nếu có
+    if role:
+        try:
+            await member.add_roles(role)
+            print(f"Gán role '{AUTO_ROLE_NAME}' cho {member.name}")
+        except discord.Forbidden:
+            print("Bot không có quyền gán vai trò.")
+
+    # Đổi nickname
+    try:
+        # Ưu tiên lấy Global Name (hiển thị chính thức), fallback về username
+        display_name = member.global_name or member.name
+        new_nick = f"[Dân thường] {display_name}"
+        await member.edit(nick=new_nick)
+        print(f"Đã đổi nickname của {member.name} thành {new_nick}")
+    except discord.Forbidden:
+        print("Bot không có quyền đổi nickname.")
+    except Exception as e:
+        print(f"Lỗi đổi nickname: {e}")
         
 ############################################################################################################
 #                                                                                                          #
