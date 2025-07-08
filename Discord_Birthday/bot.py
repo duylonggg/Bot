@@ -77,9 +77,10 @@ async def check_birthdays():
             channel = discord.utils.get(bot.get_all_channels(), name="bot-chat")
             if channel:
                 await channel.send(
-                    f"# 🎉 Hôm nay là sinh nhật của {name}!\n"
-                    f"Chúc mừng sinh nhật {name}! 🎂. Chúc {name} tuổi mới vui vẻ hạnh phúc, ngày càng thành công trên con đường phía trước 🎉🎉🎉!\n"
-                    f"@everyone hãy chúc mừng sinh nhật {name} nhé!!!"
+                    f"# 🎉 Hôm nay là sinh nhật của **{name}**!\n"
+                    f"Chúc mừng sinh nhật **{name}**! 🎂\n"
+                    f"Chúc **{name}** tuổi mới luôn vui vẻ, sớm có người yêu hay có rồi thì mãi hạnh phúc với mối quan hệ hiện tại nha, luôn tự tin trên con đường phía trước và thật thành công nhé! 🎉🎉🎉!\n"
+                    f"@everyone hãy chúc mừng sinh nhật **{name}** nhé!!!"
                 )
                 if details["wishes"]:
                     wishes = "\n".join(details["wishes"])
