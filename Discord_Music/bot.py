@@ -290,22 +290,22 @@ async def on_member_join(member: discord.Member):
 @bot.command(name="help_me")
 async def help_me(ctx):
     """Hiển thị danh sách lệnh hiện có."""
-    commands_list = (
-        "# 🎵 Danh sách lệnh:\n"
-        "?list_songs - In ra danh sách các bài nhạc đã lưu\n"
-        "?add_song \"<name>\" \"<url>\" - Lưu bài hát mới vào danh sách\n"
-        "?delete_song <name> - Xóa một bài hát trong danh sách\n"
-        "?play <url> - Phát nhạc từ YouTube\n"
-        "?play_all - Phát tất cả nhạc trong danh sách"
-        "?play_name <tên bài> - Phát nhạc theo tên từ danh sách có sẵn\n"
-        "?pause - Tạm dừng nhạc\n"
-        "?resume - Tiếp tục phát nhạc\n"
-        "?stop - Dừng nhạc và thoát khỏi kênh voice\n"
-        "?skip - Bỏ qua bài hát hiện tại nhưng phát lại sau\n"
-        "?restart - Khởi động lại bot\n"
-        "?help_me - Hiển thị danh sách lệnh"
-    )
-    await ctx.send(commands_list)
+    help_message = """
+# 🎵 Danh sách các lệnh của bot:
+- `?list_songs` : In ra danh sách các bài nhạc đã lưu.
+- `?add_song "<name>" "<url>"` : Lưu bài hát mới vào danh sách.
+- `?delete_song <name>` : Xóa một bài hát trong danh sách.
+- `?play <url>` : Phát nhạc từ YouTube.
+- `?play_all` : Phát tất cả nhạc trong danh sách.
+- `?play_name <tên bài>` : Phát nhạc theo tên từ danh sách có sẵn.
+- `?pause` : Tạm dừng nhạc.
+- `?resume` : Tiếp tục phát nhạc.
+- `?stop` : Dừng nhạc và thoát khỏi kênh voice.
+- `?skip` : Bỏ qua bài hát hiện tại nhưng phát lại sau.
+- `?restart` : Khởi động lại bot.
+- `?help_me` : Hiển thị danh sách lệnh.
+"""
+    await ctx.send(help_message)
 
 ############################################################################################################
 #                                                                                                          #
