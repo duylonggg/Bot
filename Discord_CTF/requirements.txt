@@ -1,0 +1,6 @@
+discord.py>=2.0.0
+aiohttp
+apscheduler
+python-dotenv
+icalendar
+beautifulsoup4
